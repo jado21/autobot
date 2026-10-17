@@ -1,0 +1,90 @@
+.autobuddy-parent {
+  position: relative !important;
+}
+
+/* Sombreado rojizo con borde rojo: NO oculta la tarjeta */
+.autobuddy-flag-overlay {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 50 !important;
+  background: rgba(239, 68, 68, 0.22) !important;
+  border: 3px solid #ef4444 !important;
+  border-radius: 8px !important;
+  box-shadow: inset 0 0 24px rgba(239, 68, 68, 0.35) !important;
+  pointer-events: none !important; /* se puede hacer clic en la tarjeta debajo */
+  animation: autobuddyFade 0.3s ease-out;
+}
+
+.autobuddy-flag-panel {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  max-width: 260px;
+  padding: 8px 10px;
+  background: rgba(127, 29, 29, 0.88);
+  border-radius: 8px;
+  color: #fff;
+  pointer-events: auto; /* el botón sí es clicable */
+}
+
+.autobuddy-badge {
+  background: #ef4444;
+  color: #fff;
+  font: 800 11px/1 sans-serif;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.autobuddy-plate {
+  font: 900 16px/1 monospace;
+  color: #facc15;
+  border: 1px dashed #facc15;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.autobuddy-reason,
+.autobuddy-facts {
+  margin: 0 !important;
+  font: 500 12px/1.35 sans-serif;
+  color: #fee2e2;
+}
+
+.autobuddy-facts { font-weight: 700; color: #fff; }
+
+.autobuddy-btn {
+  margin-top: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #fff;
+  font: 11px sans-serif;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.autobuddy-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+.autobuddy-tag-unverified {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 50;
+  background: rgba(82, 82, 91, 0.9);
+  color: #fff;
+  font: 600 10px/1 sans-serif;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+@keyframes autobuddyFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

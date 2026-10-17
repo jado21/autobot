@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "AutoSentinel AI - Antifraude Vehicular",
+  "version": "1.1.0",
+  "description": "Resalta vehículos con deudas o alertas en portales de venta.",
+  "host_permissions": [
+    "https://jado21.app.n8n.cloud/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.mercadolibre.com.pe/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
