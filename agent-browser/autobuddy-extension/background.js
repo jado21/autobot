@@ -1,5 +1,4 @@
-// El service worker hace el fetch (evita problemas de CORS del content script).
-const N8N_WEBHOOK_URL = "https://jado21.app.n8n.cloud/webhook/audit-vehicle";
+const N8N_WEBHOOK_URL = "https://jado21.app.n8n.cloud/webhook-test/audit-vehicle";
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (msg?.type !== "AUDIT") return;
@@ -9,9 +8,11 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ imageUrls: msg.imageUrls, listingUrl: msg.listingUrl })
   })
-    .then((r) => r.json())
-    .then((data) => sendResponse({ ok: true, data }))
-    .catch((err) => sendResponse({ ok: false, error: String(err) }));
+    .then(async (r) => {
+      if (!r.ok) return sendResponse({ ok: false, status: r.status });
+      sendResponse({ ok: true, data: await r.json() });
+    })
+    .catch((err) => sendResponse({ ok: false, status: 0, error: String(err) }));
 
-  return true; // respuesta asíncrona
+  return true;
 });

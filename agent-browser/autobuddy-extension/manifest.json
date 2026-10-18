@@ -14,7 +14,7 @@
       "matches": [
         "*://*.mercadolibre.com.pe/*"
       ],
-      "js": ["content.js"],
+      "js": ["content.js","detail.js"],
       "css": ["styles.css"],
       "run_at": "document_idle"
     }

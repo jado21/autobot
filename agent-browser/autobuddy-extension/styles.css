@@ -84,6 +84,23 @@
   pointer-events: none;
 }
 
+.autobuddy-tag { position:absolute; top:8px; left:8px; z-index:50; color:#fff;
+  font:600 10px/1 sans-serif; padding:4px 8px; border-radius:9999px; pointer-events:none; }
+.autobuddy-tag-warning { background:rgba(217,119,6,.92); }
+.autobuddy-tag-clean { background:rgba(22,163,74,.92); }
+
+.autobuddy-detail { position:fixed; top:90px; right:16px; z-index:2147483000; width:260px;
+  padding:12px 14px; border-radius:10px; color:#fff; font:13px/1.4 sans-serif;
+  box-shadow:0 6px 20px rgba(0,0,0,.3); }
+.autobuddy-detail-flagged { background:rgba(185,28,28,.95); }
+.autobuddy-detail-warning { background:rgba(180,83,9,.95); }
+.autobuddy-detail-clean { background:rgba(21,128,61,.95); }
+.autobuddy-detail-unverified { background:rgba(63,63,70,.95); }
+.autobuddy-detail-title { font-weight:800; font-size:14px; margin-bottom:4px; }
+.autobuddy-detail-plate { font:900 16px monospace; color:#facc15; margin:4px 0; }
+.autobuddy-detail-reason { margin:2px 0; }
+.autobuddy-detail-meta { margin-top:6px; font-size:11px; opacity:.8; }
+
 @keyframes autobuddyFade {
   from { opacity: 0; }
   to { opacity: 1; }
