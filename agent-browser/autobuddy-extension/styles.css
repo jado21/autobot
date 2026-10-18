@@ -101,6 +101,10 @@
 .autobuddy-detail-reason { margin:2px 0; }
 .autobuddy-detail-meta { margin-top:6px; font-size:11px; opacity:.8; }
 
+.autobuddy-tag-pending { background: rgba(37, 99, 235, 0.92); }
+
+.autobuddy-tag-possible { background:#e8f5e9; color:#1b5e20; border:1px dashed #1b5e20; }
+
 @keyframes autobuddyFade {
   from { opacity: 0; }
   to { opacity: 1; }

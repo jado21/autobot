@@ -1,4 +1,10 @@
-const IS_DETAIL = /\/MPE-\d+/i.test(location.pathname) || !!document.querySelector(".ui-pdp-gallery");
+const IS_FB = location.hostname.includes("facebook.com");
+const IS_DETAIL = IS_FB
+  ? /\/marketplace\/item\//.test(location.pathname)
+  : (/\/MPE-\d+/i.test(location.pathname) || !!document.querySelector(".ui-pdp-gallery"));
+
+
+
 // ====== CONFIG ======
 const MOCK_MODE = false;          // true = simula respuestas; false = webhook real
 const MAX_PER_MINUTE = 12;       // límite real: 15/min, dejamos margen
@@ -6,7 +12,9 @@ const MAX_CONCURRENT = 2;        // peticiones simultáneas
 const RETRY_DELAY_MS = 20000;    // espera tras un 429
 const VISIBLE_RATIO = 0.5;       // % de la tarjeta que debe verse
 
-const CARD_SELECTOR = ".ui-search-layout__item, .ui-search-result, .poly-card";
+const CARD_SELECTOR = IS_FB
+  ? 'a[href*="/marketplace/item/"]'
+  : ".ui-search-layout__item, .ui-search-result, .poly-card";
 
 // ====== ESTADO ======
 const done = new WeakSet();          // tarjetas ya resueltas
@@ -57,16 +65,31 @@ function mockResponse() {
   return { status: "CLEAN" };
 }
 
-function callWebhook(imageUrl) {
+function callWebhook(imageUrl, listingUrl) {
   if (MOCK_MODE) {
     return new Promise((res) => setTimeout(() => res({ ok: true, data: mockResponse() }), 600));
   }
   return new Promise((resolve) => {
     chrome.runtime.sendMessage(
-      { type: "AUDIT", imageUrls: [imageUrl], listingUrl: location.href },
+      { type: "AUDIT", imageUrls: [imageUrl], listingUrl },
       (resp) => resolve(chrome.runtime.lastError ? { ok: false, status: 0 } : resp)
     );
   });
+}
+
+// Identifica el anuncio por su código MPE (estable aunque cambie el enlace de rastreo)
+function listingIdFromUrl(href) {
+  const fb = /\/marketplace\/item\/(\d+)/.exec(href || "");
+  if (fb) return "FB-" + fb[1];
+  const m = /MPE-?(\d+)/i.exec(href || "");
+  if (m) return "MPE-" + m[1];
+  try { const u = new URL(href, location.href); return u.origin + u.pathname; }
+  catch (_) { return null; }
+}
+
+function getListingUrl(card) {
+  const a = card.matches("a[href]") ? card : card.querySelector("a[href]");
+  return a ? listingIdFromUrl(a.href) : null;
 }
 
 // ====== UI ======
@@ -84,6 +107,8 @@ function showFlagged(card, data) {
   if (data.fineAmount > 0) facts.push(`Multas: S/ ${data.fineAmount}`);
   if (data.isTampered) facts.push("Posible ocultamiento de placa");
   if (facts.length) panel.appendChild(el("p", "autobuddy-facts", facts.join(" · ")));
+  if (data.plate && !data.isTampered)
+  panel.appendChild(el("p", "autobuddy-facts", "Placa leída por IA: verifica que coincida con la foto"));
 
   const btn = el("button", "autobuddy-btn", "Ocultar alerta");
   btn.type = "button";
@@ -98,6 +123,13 @@ function showFlagged(card, data) {
   card.appendChild(overlay);
 }
 
+function showPending(card) {
+  card.classList.add("autobuddy-parent");
+  const t = el("span", "autobuddy-tag autobuddy-tag-pending", "Consultando SAT…");
+  card.appendChild(t);
+  return t;
+}
+
 function showUnverified(card) {
   card.classList.add("autobuddy-parent");
   card.appendChild(el("span", "autobuddy-tag-unverified", "No verificado"));
@@ -109,10 +141,14 @@ function showTag(card, cls, text) {
 }
 
 function render(card, data) {
+  const p = data.plate || "?";
   if (data.status === "FLAGGED") showFlagged(card, data);
   else if (data.status === "UNVERIFIED") showUnverified(card);
-  else if (data.status === "WARNING") showTag(card, "autobuddy-tag-warning", `Multas: S/ ${data.fineAmount}`);
-  else if (data.status === "CLEAN") showTag(card, "autobuddy-tag-clean", "Sin hallazgos");
+  else if (data.status === "WARNING")
+    showTag(card, "autobuddy-tag-warning", `Multas S/ ${data.fineAmount} · ${p} · confirma placa`);
+  else if (data.status === "CLEAN")
+    showTag(card, "autobuddy-tag-possible",
+      data.dataSource === "SAT Lima" ? `Sin deuda · ${p} · confirma placa` : "Sin hallazgos (demo)");
 }
 
 // ====== COLA CON LÍMITE DE RITMO ======
@@ -158,8 +194,10 @@ async function processCard(card) {
 
   inFlight++;
   sentTimestamps.push(Date.now());
+  const pendingEl = showPending(card);
 
-  const resp = await callWebhook(url);
+  const resp = await callWebhook(url, getListingUrl(card));
+  pendingEl.remove();
   inFlight--;
 
   if (resp?.ok) {

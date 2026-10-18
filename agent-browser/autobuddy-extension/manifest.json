@@ -4,7 +4,7 @@
   "version": "1.1.0",
   "description": "Resalta vehículos con deudas o alertas en portales de venta.",
   "host_permissions": [
-    "https://jado21.app.n8n.cloud/*"
+    "https://jado21.app.n8n.cloud/*","*://*.facebook.com/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -12,7 +12,7 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.mercadolibre.com.pe/*"
+        "*://*.mercadolibre.com.pe/*","*://*.facebook.com/marketplace/*"
       ],
       "js": ["content.js","detail.js"],
       "css": ["styles.css"],
